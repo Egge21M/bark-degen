@@ -6,7 +6,7 @@ ShellRoot {
     id: root
     property int step: 0
     property int ticks: 0
-    property var settings: ({network: "signet", binary: Quickshell.env("BARK_TEST_BINARY")})
+    property var settings: ({network: "signet", confetti: false, binary: Quickshell.env("BARK_TEST_BINARY")})
     property bool sawInvoice: false
     function check(condition, reason) {
         if (!condition) { console.error("FAIL: " + reason); Qt.exit(1); throw new Error(reason); }

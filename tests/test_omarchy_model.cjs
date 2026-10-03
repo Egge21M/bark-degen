@@ -5,6 +5,12 @@ const model = vm.createContext({});
 vm.runInContext(fs.readFileSync('omarchy/Model.js', 'utf8'), model);
 const plain = value => JSON.parse(JSON.stringify(value));
 const config = model.config({}, '/a path/bark-degen');
+assert.equal(config.notifications, true);
+assert.equal(config.confetti, true);
+assert.equal(model.config({notifications: false, confetti: false}, 'bark').notifications, false);
+assert.equal(model.config({notifications: false, confetti: false}, 'bark').confetti, false);
+assert.equal(model.resultMessage({win: true, roll: 42, payout_sat: 1970}), 'WIN · roll 0042 · house reports 1970 sats paid · verified');
+assert.equal(model.resultMessage({win: false, roll: 9999, payout_sat: 1970}), 'LOSS · roll 9999 · verified');
 assert.deepEqual(plain(model.command(config, ['play', '1000', '--game', 'lt5000'])),
     ['/a path/bark-degen', '--json', '--network', 'mainnet', '--api', 'https://barkdice.com', 'play', '1000', '--game', 'lt5000']);
 for (const input of ['', '0', '-1', '1.2', '1e3', 'Infinity', '1;echo x', '2100000000000001']) {

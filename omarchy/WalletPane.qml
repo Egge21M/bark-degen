@@ -7,6 +7,7 @@ FocusScope {
     id: root
     property var backend: null
     property var settings: ({})
+    property string screenName: ""
     property string page: "wallet"
     property color foreground: "#e5e7eb"
     property color background: "#16191f"
@@ -71,6 +72,8 @@ FocusScope {
                     if (root.backend && root.backend.config) {
                         stake.text = String(root.backend.config.stake);
                         game.currentIndex = Model.games.indexOf(root.backend.config.game);
+                        notifications.checked = root.backend.config.notifications !== false;
+                        confetti.checked = root.backend.config.confetti !== false;
                     }
                     root.page = "settings";
                 }
@@ -185,13 +188,35 @@ FocusScope {
                     Label { text: "Stake per click (sats)" }
                     Field { id: stake; objectName: "stake"; text: "1000"; inputMethodHints: Qt.ImhDigitsOnly; enabled: root.idle }
                     Label { text: "Each left-click places one bet using these settings."; opacity: 0.7 }
+                    Controls.CheckBox {
+                        id: notifications
+                        objectName: "notificationsToggle"
+                        text: "Win / loss notifications"
+                        checked: true
+                        enabled: root.idle
+                        palette.windowText: root.foreground
+                        font.family: root.fontFamily
+                        font.pixelSize: root.fontSize
+                    }
+                    Controls.CheckBox {
+                        id: confetti
+                        objectName: "confettiToggle"
+                        text: "Confetti on wins"
+                        checked: true
+                        enabled: root.idle
+                        palette.windowText: root.foreground
+                        font.family: root.fontFamily
+                        font.pixelSize: root.fontSize
+                    }
+                    Label { text: "Confetti respects reduced motion and lets clicks pass through."; opacity: 0.7 }
                     Button {
                         objectName: "saveSettingsButton"
                         text: "Save settings"
                         enabled: root.idle
                         onClicked: {
                             try {
-                                var entry = Object.assign({}, root.settings, {id: "bark.degen", game: Model.games[game.currentIndex], stake: Model.sats(stake.text)});
+                                var entry = Object.assign({}, root.settings, {id: "bark.degen", game: Model.games[game.currentIndex], stake: Model.sats(stake.text),
+                                    notifications: notifications.checked, confetti: confetti.checked});
                                 root.saveSettings(entry);
                             } catch (e) { root.backend.error = String(e.message || e); }
                         }
@@ -220,7 +245,7 @@ FocusScope {
                             objectName: "resumeButton"
                             text: operationRow.modelData.kind === "withdraw" ? "Check withdrawal" : operationRow.modelData.kind === "play" ? "Resume bet" : "Resume top up"
                             enabled: root.idle && operationRow.modelData.resumable
-                            onClicked: { if (operationRow.modelData.kind === "fund") root.page = "topup"; root.backend.resume(operationRow.modelData); }
+                            onClicked: { if (operationRow.modelData.kind === "fund") root.page = "topup"; root.backend.resume(operationRow.modelData, root.screenName); }
                         }
                     }
                 }

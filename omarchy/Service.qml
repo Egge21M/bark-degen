@@ -1,6 +1,7 @@
 import QtQuick
 import Quickshell
 import Quickshell.Io
+import qs.Commons
 import "Model.js" as Model
 
 // One instance for the entire shell, shared by every monitor's widget.
@@ -21,6 +22,10 @@ Item {
     property string depositEstimate: ""
     property var operations: []
     property var lastResult: null
+    property var announcedResults: []
+    property string resultScreenName: ""
+    property bool celebrating: false
+    onConfigChanged: if (!config || !config.confetti) celebrating = false
     property bool receivedSnapshot: false
     property bool gotEvent: false
     property bool needsRefresh: false
@@ -39,6 +44,7 @@ Item {
             if (walletChanged) {
                 ready = false; initialized = false; balance = null; operations = [];
                 address = ""; invoice = ""; fundingId = ""; lastResult = null;
+                announcedResults = []; celebrating = false;
                 error = ""; needsRefresh = true;
                 start(["status"], "snapshot", true);
             }
@@ -87,18 +93,23 @@ Item {
         } catch (e) { error = String(e.message || e); }
         return false;
     }
-    function play() {
+    function play(screenName) {
         if (!canSpend) return false;
         if (start(["play", String(config.stake), "--game", config.game], "play", false)) {
             lastResult = null;
+            celebrating = false;
+            resultScreenName = screenName || "";
             message = "Rolling · " + config.stake + " sats…";
             return true;
         }
         return false;
     }
-    function resume(operation) {
+    function resume(operation, screenName) {
         try {
-            if (start(Model.resume(operation), operation.kind, false)) message = "Checking saved " + operation.kind + "…";
+            if (start(Model.resume(operation), operation.kind, false)) {
+                resultScreenName = screenName || "";
+                message = "Checking saved " + operation.kind + "…";
+            }
         } catch (e) { error = String(e.message || e); }
     }
     function stopWaiting() {
@@ -123,11 +134,45 @@ Item {
         case "bet_status": message = "Bet: " + value.state; break;
         case "bet_result":
             lastResult = value;
-            message = (value.win ? "WIN" : "LOSE") + " · roll " + String(value.roll).padStart(4, "0")
-                + (value.win ? " · house reports " + value.payout_sat + " sats paid" : "") + " · verified";
+            message = Model.resultMessage(value);
+            announceResult(value);
             break;
         case "withdrawal_status": message = "Withdrawal: " + value.state + (value.result ? " · " + value.result : ""); break;
         }
+    }
+
+    function announceResult(result) {
+        // The service is shared across monitors. Repeated receipts must not repeat feedback.
+        if (!config || announcedResults.indexOf(result.id) >= 0) return;
+        announcedResults = announcedResults.concat([result.id]);
+        if (config.notifications) {
+            Quickshell.execDetached(["notify-send", "--app-name=Bark Dice", "--urgency=normal",
+                "--expire-time=8000", "--", result.win ? "Bark Dice — WIN!" : "Bark Dice — LOSS",
+                message + "\n" + config.network + (balance !== null ? " · balance " + balance + " sats" : "")]);
+        }
+        if (result.win && config.confetti && !Style.reduceMotion) {
+            celebrating = true;
+            if (celebration.item) celebration.item.burst();
+        }
+    }
+
+    Loader {
+        id: celebration
+        objectName: "celebrationLoader"
+        active: root.celebrating && root.config && root.config.confetti && !Style.reduceMotion
+        source: "Confetti.qml"
+        onLoaded: {
+            item.screen = Quickshell.screens.find(function(s) { return s.name === root.resultScreenName; }) || Quickshell.screens[0];
+            item.burst();
+        }
+    }
+    Connections {
+        target: celebration.item
+        function onFinished() { root.celebrating = false; }
+    }
+    Connections {
+        target: Style
+        function onReduceMotionChanged() { if (Style.reduceMotion) root.celebrating = false; }
     }
 
     function finished(code) {

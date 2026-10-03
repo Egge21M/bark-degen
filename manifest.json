@@ -12,6 +12,6 @@
     "category": "Wallet",
     "allowMultiple": false,
     "defaultSection": "right",
-    "defaults": {"game": "lt5000", "stake": 1000, "network": "mainnet"}
+    "defaults": {"game": "lt5000", "stake": 1000, "network": "mainnet", "notifications": true, "confetti": true}
   }
 }

@@ -27,11 +27,14 @@ python3 scripts/install-omarchy.py
 
 This builds the Rust client, copies the plugin and its binary into `~/.config/omarchy/plugins/bark.degen`, and enables the widget in the right bar section. To use an existing build, pass `--binary /path/to/bark-degen`. To stage files without enabling them, pass `--dest /path/to/bark.degen --no-enable`. Re-run the installer to update. Restart the shell after updating QML service code (`omarchy restart shell`); finish active payments first.
 
-- **Left-click the dice:** place one bet with the saved stake and game. The icon animates while the bet runs; its tooltip shows the verified result.
+- **Left-click the dice:** place one bet with the saved stake and game. The icon animates while the bet runs. A verified result sends a desktop notification, even with the popup closed. The horizontal bar keeps a **WIN / LOSS** label until the next bet; the icon color and tooltip also reflect the result.
+- **Wins:** a brief, click-through confetti shower appears on the monitor where you started the bet. It does not take keyboard focus and is skipped when Omarchy has reduced motion enabled.
 - **Right-click:** open the Wallet / Settings popup. A new wallet has a **Create wallet** button. Existing CLI wallets are reused.
 - **Wallet → Top up:** generate a Lightning invoice and copy it, or copy an Ark receiving address. Keep the plugin running to claim a Lightning deposit. If waiting is stopped or the shell restarts, use **Resume top up** for the saved invoice.
 - **Wallet → Withdraw:** enter an Ark address, BOLT11 invoice, or Bitcoin address, plus an amount when required, and press **Send**. This sends immediately; fees may be additional.
-- **Settings:** choose the 50%, 25%, 10%, or 2% game and the stake in whole sats. **Save settings** persists them in the widget's `shell.json` entry.
+- **Settings:** choose the 50%, 25%, 10%, or 2% game and the stake in whole sats. Notifications and confetti are enabled by default and can be toggled independently. **Save settings** persists them in the widget's `shell.json` entry (`notifications` and `confetti` are boolean fields).
+
+Notifications use `notify-send` from `libnotify` and respect the desktop's notification settings. Results are announced once per bet for the active wallet within the running session, including a bet resolved with **Resume bet**. Pending or failed verification never triggers win/loss feedback.
 
 Mainnet and a 1,000-sat stake are the defaults. Settings displays the active network. The shared service serializes actions across monitors and refreshes the wallet balance once a minute while enabled. Closing the popup leaves its active operation running. Incomplete bets and withdrawals appear with **Resume bet** / **Check withdrawal**; those actions inspect existing payments and never send again. An unresolved outgoing payment disables new spends until it is resolved; inspect an uncertain withdrawal with the CLI's `withdraw --status ID` and `fund --history` if its outcome remains unknown.
 
@@ -182,6 +185,6 @@ With Quickshell, labwc, and the Omarchy shell sources installed, run the service
 python3 scripts/test-omarchy-runtime.py --shell /usr/share/omarchy/shell
 ```
 
-This checks streaming invoices, one bet per click across widget instances, settings persistence through the host API, withdrawals, restart recovery, and a missing binary. The backend is a deterministic fixture; no funds are moved. `--quickshell` and `--compositor` can select alternate executable paths.
+This checks streaming invoices, one bet per click across widget instances, settings persistence through the host API, withdrawals, restart recovery, and a missing binary. It also checks closed-panel win/loss feedback, notification deduplication, reduced motion, and confetti window cleanup. Wallet and notification commands are deterministic fixtures; no funds are moved or desktop notifications sent. `--quickshell` and `--compositor` can select alternate executable paths.
 
 Tests use local temporary databases, loopback mock HTTP/Esplora servers, and the five [published reference vectors](https://barkdice.com/test-vectors.json). They cover verification/tampering, quote validation, network and amount checks, reopening a real SDK SQLite wallet with the same keys, wallet locking, and refusing duplicate stake submissions after an uncertain send. They do not contact a live wallet server or spend funds. Verifying a roll does not guarantee payout.

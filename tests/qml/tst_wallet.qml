@@ -64,11 +64,17 @@ Item {
             control("stake").text = "0";
             click("saveSettingsButton"); compare(saved.count, 0); verify(backend.error.length > 0);
             control("stake").text = "2500"; control("gameMode").currentIndex = 2;
+            verify(control("notificationsToggle").checked);
+            verify(control("confettiToggle").checked);
+            control("notificationsToggle").checked = false;
+            control("confettiToggle").checked = false;
             click("saveSettingsButton"); compare(saved.count, 1);
             compare(saved.signalArguments[0][0].stake, 2500);
             compare(saved.signalArguments[0][0].game, "lt1000");
             compare(saved.signalArguments[0][0].api, "https://example.com");
             compare(saved.signalArguments[0][0].network, "signet");
+            compare(saved.signalArguments[0][0].notifications, false);
+            compare(saved.signalArguments[0][0].confetti, false);
         }
         function test_busy_and_unknown_payment_disable_send() {
             click("withdrawButton"); control("destination").text = "ark1recipient";

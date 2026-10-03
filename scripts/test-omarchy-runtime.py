@@ -26,7 +26,15 @@ def main():
             shutil.copytree(args.shell / part, root / part)
         state = root / "state"
         state.mkdir()
+        mock_bin = root / "bin"
+        mock_bin.mkdir()
+        notifier = mock_bin / "notify-send"
+        notifier.write_text('#!/usr/bin/env python3\nimport json, os, sys\nfrom pathlib import Path\n'
+                            'with (Path(os.environ["BARK_TEST_STATE"]) / "notifications.jsonl").open("a") as f:\n'
+                            '    f.write(json.dumps(sys.argv[1:]) + "\\n")\n')
+        notifier.chmod(0o755)
         env = dict(os.environ, QT_QPA_PLATFORM="offscreen", QT_QUICK_BACKEND="software",
+                   PATH=str(mock_bin) + os.pathsep + os.environ["PATH"],
                    XDG_RUNTIME_DIR=str(runtime), BARK_TEST_STATE=str(state),
                    BARK_TEST_BINARY=str(repo / "tests/quickshell/mock-wallet.py"))
         compositor = None
@@ -49,6 +57,7 @@ def main():
                     env.update(QT_QPA_PLATFORM="wayland", WAYLAND_DISPLAY=str(socket))
                 (root / "shell.qml").write_text((repo / "tests/quickshell" / harness).read_text().replace("../../omarchy", "omarchy"))
                 (state / "calls.jsonl").unlink(missing_ok=True)
+                (state / "notifications.jsonl").unlink(missing_ok=True)
                 result = subprocess.run([args.quickshell, "-p", str(root / "shell.qml")], env=env,
                                         stdout=subprocess.PIPE, stderr=subprocess.STDOUT, text=True, timeout=40)
                 print(result.stdout)
@@ -58,8 +67,21 @@ def main():
                 plays = [call for call in calls if "play" in call and "--resume" not in call]
                 assert len(plays) == (2 if harness == "shell.qml" else 1), calls
                 assert all(call[call.index("--network") + 1] == "signet" for call in calls), calls
+                expected_notifications = 2 if harness == "shell.qml" else 3
+                deadline = time.monotonic() + 5
+                while True:
+                    notifications = [json.loads(line) for line in (state / "notifications.jsonl").read_text().splitlines()]
+                    if len(notifications) >= expected_notifications or time.monotonic() > deadline:
+                        break
+                    time.sleep(0.05)  # Detached notifier processes can finish after the shell exits.
+                assert len(notifications) == expected_notifications, notifications
                 if harness == "widget.qml":
                     assert plays[0][-4:] == ["play", "3000", "--game", "lt2500"], plays
+                    assert sorted(n[-2] for n in notifications) == ["Bark Dice — LOSS", "Bark Dice — WIN!", "Bark Dice — WIN!"], notifications
+                    assert all("1970 sats paid" in n[-1] for n in notifications if n[-2].endswith("WIN!")), notifications
+                    loss = next(n for n in notifications if n[-2].endswith("LOSS"))
+                    assert "paid" not in loss[-1] and "9999" in loss[-1], notifications
+                    assert all("signet" in n[-1] and "--" in n for n in notifications), notifications
         finally:
             if compositor is not None:
                 compositor.terminate()

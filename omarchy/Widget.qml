@@ -1,4 +1,5 @@
 import QtQuick
+import Quickshell
 import qs.Ui as Ui
 import qs.Commons
 
@@ -7,6 +8,10 @@ Ui.Panel {
     moduleName: "bark.degen"
     manageIpc: false
     readonly property var backend: bar && bar.shell ? bar.shell.serviceFor(moduleName) : null
+    readonly property string screenName: QsWindow.window && QsWindow.window.screen ? QsWindow.window.screen.name : ""
+    readonly property string resultLabel: backend && backend.lastResult ? (backend.lastResult.win ? "WIN" : "LOSS") : ""
+    readonly property color resultColor: !backend || backend.error || (backend.lastResult && !backend.lastResult.win) ? Color.urgent
+        : backend.lastResult ? Color.accent : button.foreground
     implicitWidth: button.implicitWidth
     implicitHeight: button.implicitHeight
 
@@ -27,14 +32,28 @@ Ui.Panel {
         bar: root.bar
         labelVisible: false
         hasVisualContent: true
-        fixedWidth: root.bar && root.bar.vertical ? root.bar.barSize : Style.space(32)
-        DiceIcon {
+        fixedWidth: root.bar && root.bar.vertical ? root.bar.barSize : feedback.width + Style.space(16)
+        Row {
+            id: feedback
             anchors.centerIn: parent
-            width: Style.space(16)
-            height: width
-            rolling: root.backend && root.backend.busy && root.backend.action === "play" && !Style.reduceMotion
-            color: !root.backend || root.backend.error ? Color.urgent
-                : root.backend.lastResult && root.backend.lastResult.win ? Color.accent : button.foreground
+            spacing: Style.space(6)
+            DiceIcon {
+                anchors.verticalCenter: parent.verticalCenter
+                width: Style.space(16)
+                height: width
+                rolling: root.backend && root.backend.busy && root.backend.action === "play" && !Style.reduceMotion
+                color: root.resultColor
+            }
+            Text {
+                objectName: "resultLabel"
+                anchors.verticalCenter: parent.verticalCenter
+                visible: text !== "" && !(root.bar && root.bar.vertical)
+                text: root.resultLabel
+                color: root.resultColor
+                font.family: Style.font.family
+                font.pixelSize: Style.font.body
+                font.bold: true
+            }
         }
         tooltipText: root.backend && root.backend.config
             ? "Bark Dice · " + root.backend.config.network + "\nLeft-click: bet " + root.backend.config.stake
@@ -44,7 +63,7 @@ Ui.Panel {
         onPressed: function(mouseButton) {
             if (mouseButton === Qt.RightButton) root.toggle();
             else if (mouseButton === Qt.LeftButton && root.backend) {
-                if (!root.backend.play()) root.open();
+                if (!root.backend.play(root.screenName)) root.open();
             }
         }
     }
@@ -65,6 +84,7 @@ Ui.Panel {
             anchors.fill: parent
             backend: root.backend
             settings: root.settings
+            screenName: root.screenName
             foreground: Color.popups.text
             background: Color.popups.background
             accent: Color.accent

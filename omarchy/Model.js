@@ -17,7 +17,13 @@ function config(settings, binary) {
     if (["mainnet", "signet"].indexOf(network) < 0) throw new Error("Unknown wallet network.");
     return {game: game, stake: sats(s.stake === undefined ? 1000 : s.stake), network: network,
         binary: s.binary || binary, dataDir: s.dataDir || "", api: s.api || "https://barkdice.com",
-        arkServer: s.arkServer || "", esplora: s.esplora || ""};
+        arkServer: s.arkServer || "", esplora: s.esplora || "",
+        notifications: s.notifications !== false, confetti: s.confetti !== false};
+}
+
+function resultMessage(result) {
+    return (result.win ? "WIN" : "LOSS") + " · roll " + String(result.roll).padStart(4, "0")
+        + (result.win ? " · house reports " + result.payout_sat + " sats paid" : "") + " · verified";
 }
 
 function command(c, args) {
