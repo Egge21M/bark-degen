@@ -1,0 +1,17 @@
+{
+  "schemaVersion": 1,
+  "id": "bark.degen",
+  "name": "Bark Dice",
+  "version": "0.1.0",
+  "description": "One-click Bark dice with a persistent Ark wallet",
+  "kinds": ["service", "bar-widget"],
+  "keepLoaded": true,
+  "entryPoints": {"service": "omarchy/Service.qml", "barWidget": "omarchy/Widget.qml"},
+  "barWidget": {
+    "displayName": "Bark Dice",
+    "category": "Wallet",
+    "allowMultiple": false,
+    "defaultSection": "right",
+    "defaults": {"game": "lt5000", "stake": 1000, "network": "mainnet"}
+  }
+}

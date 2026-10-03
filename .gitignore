@@ -1,0 +1,14 @@
+/target/
+/bin/bark-degen
+/.wallet/
+/.bark-degen-runs/
+__pycache__/
+*.sqlite
+*.sqlite-*
+mnemonic
+identity.json
+.env
+.env.*
+!.env.example
+/.aws/
+/.codex/

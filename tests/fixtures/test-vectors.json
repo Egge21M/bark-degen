@@ -1,0 +1,102 @@
+[
+  {
+    "terms": {
+      "rules_version": "bark-dice/v1",
+      "bet_id": "00000000000000000000000000000001",
+      "game": "lt5000",
+      "target": 5000,
+      "stake_sat": 1000,
+      "payout_sat": 1970,
+      "payout_address": "tark1examplepayoutaddress",
+      "pay_to": "tark1examplehouseaddress",
+      "expires_at": 1790000000,
+      "server_seed_commitment": "72cd6e8422c407fb6d098690f1130b7ded7ec2f7f5e1d30bd9d521f015363793",
+      "client_seed": "lucky-7"
+    },
+    "terms_hash": "6157147f54e48fc6ce32f8affee995739dbf177bbf1b7019a3f164ec5882f498",
+    "server_seed": "0101010101010101010101010101010101010101010101010101010101010101",
+    "roll": 818,
+    "win": true,
+    "payout_sat": 1970
+  },
+  {
+    "terms": {
+      "rules_version": "bark-dice/v1",
+      "bet_id": "00000000000000000000000000000002",
+      "game": "lt2500",
+      "target": 2500,
+      "stake_sat": 2000,
+      "payout_sat": 7880,
+      "payout_address": "tark1examplepayoutaddress",
+      "pay_to": "tark1examplehouseaddress",
+      "expires_at": 1790000001,
+      "server_seed_commitment": "75877bb41d393b5fb8455ce60ecd8dda001d06316496b14dfa7f895656eeca4a",
+      "client_seed": "a"
+    },
+    "terms_hash": "e7d518db6e134dd73e9b307659d5436cb1ee4cab576eb97202813752054a9cc3",
+    "server_seed": "0202020202020202020202020202020202020202020202020202020202020202",
+    "roll": 8124,
+    "win": false,
+    "payout_sat": 0
+  },
+  {
+    "terms": {
+      "rules_version": "bark-dice/v1",
+      "bet_id": "00000000000000000000000000000003",
+      "game": "lt1000",
+      "target": 1000,
+      "stake_sat": 5000,
+      "payout_sat": 49250,
+      "payout_address": "tark1examplepayoutaddress",
+      "pay_to": "tark1examplehouseaddress",
+      "expires_at": 1790000002,
+      "server_seed_commitment": "648aa5c579fb30f38af744d97d6ec840c7a91277a499a0d780f3e7314eca090b",
+      "client_seed": "satoshi_dice"
+    },
+    "terms_hash": "2d53beabcc13143e40036874e1ceb8583a07d6b9329d29bac85bf4544f9350fc",
+    "server_seed": "0303030303030303030303030303030303030303030303030303030303030303",
+    "roll": 8091,
+    "win": false,
+    "payout_sat": 0
+  },
+  {
+    "terms": {
+      "rules_version": "bark-dice/v1",
+      "bet_id": "00000000000000000000000000000004",
+      "game": "lt0200",
+      "target": 200,
+      "stake_sat": 1000,
+      "payout_sat": 49250,
+      "payout_address": "tark1examplepayoutaddress",
+      "pay_to": "tark1examplehouseaddress",
+      "expires_at": 1790000003,
+      "server_seed_commitment": "9f4fb68f3e1dac82202f9aa581ce0bbf1f765df0e9ac3c8c57e20f685abab8ed",
+      "client_seed": "0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef"
+    },
+    "terms_hash": "8160ac2b5159ec5a99fd2dbecc9578bd9bae66ff9ac6edd89140d301ffd15aa1",
+    "server_seed": "0404040404040404040404040404040404040404040404040404040404040404",
+    "roll": 2650,
+    "win": false,
+    "payout_sat": 0
+  },
+  {
+    "terms": {
+      "rules_version": "bark-dice/v1",
+      "bet_id": "00000000000000000000000000000005",
+      "game": "lt5000",
+      "target": 5000,
+      "stake_sat": 1001,
+      "payout_sat": 1971,
+      "payout_address": "tark1examplepayoutaddress",
+      "pay_to": "tark1examplehouseaddress",
+      "expires_at": 1790000004,
+      "server_seed_commitment": "f849d67325facf04177bc663b2dc544051831c589ef581d412f2eba44834e77c",
+      "client_seed": "rounding-check"
+    },
+    "terms_hash": "9ba805d10872281cf7265265eda80735f0207b296e1d5d782f0f184ce08bbeab",
+    "server_seed": "0505050505050505050505050505050505050505050505050505050505050505",
+    "roll": 9801,
+    "win": false,
+    "payout_sat": 0
+  }
+]
