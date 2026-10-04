@@ -1,6 +1,11 @@
 # bark-degen
 
+> [!WARNING]
+> This is experimental software that has not been reviewed or independently audited. It may contain bugs that result in loss of funds. Proceed at your own risk, and only use funds you can afford to lose. The software is provided without warranty.
+
 A Rust CLI with its own persistent Bark wallet and three commands: `fund`, `withdraw`, and `play`. It embeds the official `bark-wallet` SDK and uses SQLite. No separately installed Bark wallet or daemon is required.
+
+Licensed under the [MIT License](LICENSE). Copyright (c) 2026 Egge21M.
 
 ## Build
 
